@@ -6,7 +6,7 @@ on:
       STOCK_DEVICE:
         description: "STOCK_DEVICE_MODEL or None"
         required: true
-        default: "SM-G980F"
+        default: "SM-G780F"
       USE_UI_8_TETHERING_APEX:
         description: "Set True if your kernel BPF version is 5.4 (lower than 5.10)."
         required: true
@@ -18,11 +18,11 @@ on:
       TARGET_DEVICE_CSC:
         description: "TARGET_DEVICE_CSC."
         required: true
-        default: "EUX"
+        default: "ZTO"
       TARGET_DEVICE_IMEI:
         description: "TARGET_DEVICE_IMEI."
         required: true
-        default: "350389910895757"
+        default: "358615315599616"
       OUTPUT_FILESYSTEM:
         description: "OUTPUT_FILESYSTEM. e.g erofs / ext4 / f2fs"
         required: true
@@ -35,7 +35,7 @@ jobs:
 
     steps:
       - name: Checkout repository.
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Validate STOCK_DEVICE
         run: |
@@ -45,9 +45,6 @@ jobs:
             echo "❌ $STOCK_DEVICE is not supported with this tool."
             exit 1
           fi
-
-      - name: Remove unnecessary files.
-        uses: rokibhasansagar/slimhub_actions@v25.42.5
 
       - name: Install Dependencies.
         run: |
@@ -169,9 +166,17 @@ jobs:
           bash scripts/images_zip.sh
 
 
-      - name: Upload ROM Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: QuantumROM-${{ github.event.inputs.STOCK_DEVICE }}
-          path: |
-            OUT/QuantumROM*.zip*
+      - name: Upload to GoFile
+        run: |
+          ZIP_FILE=$(find OUT -maxdepth 1 -type f -name "QuantumROM*.zip" | head -n 1)
+
+          RESPONSE=$(curl -s -F "file=@$ZIP_FILE" -F "token=${{ secrets.GOFILE_TOKEN }}" -F "folderId=${{ secrets.GOFILE_FOLDER_ID }}" "https://upload-eu-par.gofile.io/uploadFile")
+
+          echo "Uploaded successfully! Download link:"
+          echo "$RESPONSE" | jq -r '.data.downloadPage'
+
+          echo "MD5:"
+          md5sum "$ZIP_FILE"
+
+          echo "SHA256:"
+          sha256sum "$ZIP_FILE"
