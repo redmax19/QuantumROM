@@ -182,6 +182,7 @@ KICK() {
             target="$dir/$app"
 
             if [[ -d "$target" ]]; then
+			    echo "- Debloating $target"
                 rm -rf "$target" || echo -e "[WARN] Failed to delete $target"
             fi
         done
@@ -204,9 +205,6 @@ DEBLOAT_SAMSUNG_BIXBY_APPS() {
     fi
 
     echo -e "Debloating samssung bixby apps."
-
-	# Debloat samsung bixby apps
-	echo "- Debloating apps."
     KICK "$EXTRACTED_FIRM_DIR" "${SAMSUNG_BIXBY_APPS[@]}"
 }
 
@@ -226,9 +224,6 @@ DEBLOAT_SAMSUNG_DEX_APPS() {
     fi
 
     echo -e "Debloating samssung dex apps."
-
-	# Debloat samsung dex apps
-	echo "- Debloating apps."
     KICK "$EXTRACTED_FIRM_DIR" "${SAMSUNG_DEX_APPS[@]}"
 }
 
